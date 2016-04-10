@@ -13,9 +13,29 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url
 from django.contrib import admin
 
+from structlog.models import LogItem
+admin.site.register(LogItem)
+
+from django.conf.urls import url, include
+from django.contrib.auth.models import User
+from rest_framework import routers, serializers, viewsets
+
+class LogItemSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = LogItem
+        fields = ('name', 'host', 'user', 'description', 'attributes', 'created_at', 'updated_at',)
+
+class LogItemViewSet(viewsets.ModelViewSet):
+    queryset = LogItem.objects.all()
+    serializer_class = LogItemSerializer
+
+router = routers.DefaultRouter()
+router.register(r'logitems', LogItemViewSet)
+
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    url(r'^', include(router.urls)),
+    url(r'^admin/', include(admin.site.urls)),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

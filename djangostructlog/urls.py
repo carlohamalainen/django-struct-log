@@ -19,8 +19,13 @@ from structlog.models import LogItem
 admin.site.register(LogItem)
 
 from django.conf.urls import url, include
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
+
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+# from rest_framework.response import Response
+# from rest_framework.views import APIView
 
 class LogItemSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -28,6 +33,9 @@ class LogItemSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('name', 'host', 'user', 'description', 'attributes', 'created_at', 'updated_at',)
 
 class LogItemViewSet(viewsets.ModelViewSet):
+    authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication)
+    permission_classes = (IsAuthenticated,)
+
     queryset = LogItem.objects.all()
     serializer_class = LogItemSerializer
 
